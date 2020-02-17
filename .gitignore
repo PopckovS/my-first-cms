@@ -1,5 +1,8 @@
 # Файлы нетбинса:
 /nbproject/*
 
+# Файлы phpstorm:
+.idea
+
 # Локальные настройи:
 config-local.php

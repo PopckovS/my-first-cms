@@ -1,6 +1,6 @@
 <?php include "templates/include/header.php" ?>
 <?php include "templates/admin/include/header.php" ?>
-	  
+
     <h1>All Articles</h1>
 
     <?php if ( isset( $results['errorMessage'] ) ) { ?>
@@ -16,7 +16,8 @@
             <tr>
               <th>Publication Date</th>
               <th>Article</th>
-              <th>Category</th>
+              <th>SubCategory</th>
+              <th>Active</th> <!-- Добавил заголовок для поля Active -->
             </tr>
 
 <!--<?php echo "<pre>"; print_r ($results['articles'][2]->publicationDate); echo "</pre>"; ?> Обращаемся к дате массива $results. Дата = 0 -->
@@ -24,10 +25,15 @@
     <?php foreach ( $results['articles'] as $article ) { ?>
 
             <tr onclick="location='admin.php?action=editArticle&amp;articleId=<?php echo $article->id?>'">
-              <td><?php echo date('j M Y', $article->publicationDate)?></td>
+                
+              <td>
+                  <?php echo date('j M Y', $article->publicationDate)?>
+              </td>
+              
               <td>
                 <?php echo $article->title?>
               </td>
+              
               <td>
                   
              <!--   <?php echo $results['categories'][$article->categoryId]->name?> Эта строка была скопирована с сайта-->
@@ -42,6 +48,13 @@
                 echo "Без категории";
                 }?>
               </td>
+              
+               <!-- Добавил поле ACTIVE -->
+              <td>
+                <?php echo $article->active?> 
+              </td>
+               <!-- -->
+              
             </tr>
 
     <?php } ?>

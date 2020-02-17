@@ -1,7 +1,12 @@
+<?php
+
+
+?>
+
 <?php include "templates/include/header.php" ?>
-	<?php include "templates/admin/include/header.php" ?>
+<?php include "templates/admin/include/header.php" ?>
 	  
-            <h1>Article Categories</h1>
+            <h1>Article Sub Categories</h1>
 	  
 	<?php if ( isset( $results['errorMessage'] ) ) { ?>
 	        <div class="errorMessage"><?php echo $results['errorMessage'] ?></div>
@@ -14,14 +19,18 @@
 	  
             <table>
                 <tr>
-                    <th>Category</th>
+                    <th>Name</th>
+                    <th>Parent Category</th>
                 </tr>
 
-        <?php foreach ( $results['categories'] as $category ) { ?>
+        <?php foreach ( $results['subCategory'] as $subCategory ) { ?>
 
-                <tr onclick="location='admin.php?action=editCategory&amp;categoryId=<?php echo $category->id?>'">
+                <tr onclick="location='admin.php?action=editSubCategory&amp;subCategoryId=<?php echo $subCategory->id?>'">
                     <td>
-                        <?php echo $category->name?>
+                        <?php echo $subCategory->name?>
+                    </td>
+                    <td>
+                        <?php echo $subCategory->categoryId?>
                     </td>
                 </tr>
 
@@ -31,6 +40,6 @@
 
             <p><?php echo $results['totalRows']?> categor<?php echo ( $results['totalRows'] != 1 ) ? 'ies' : 'y' ?> in total.</p>
 
-            <p><a href="admin.php?action=newCategory">Add a New Category</a></p>
+            <p><a href="admin.php?action=newSubCategory">Add a New Sub Category</a></p>
 	  
 	<?php include "templates/include/footer.php" ?>

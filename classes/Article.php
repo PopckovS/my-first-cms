@@ -1,3 +1,7 @@
+
+
+
+
 <?php
 
 
@@ -36,6 +40,15 @@ class Article
     * @var string HTML содержание статьи
     */
     public $content = null;
+    
+    
+    /**
+    * @var string HTML содержание статьи
+    */
+    public $active = null;
+    
+    
+    
     /**
     * Устанавливаем свойства с помощью значений в заданном массиве
     *
@@ -85,6 +98,11 @@ class Article
       if (isset($data['content'])) {
           $this->content = $data['content'];  
       }
+      
+       if (isset($data['active'])) {
+          $this->active = (int) $data['active'];  
+      }
+
     }
 
 
@@ -114,7 +132,7 @@ class Article
     * Возвращаем объект статьи соответствующий заданному ID статьи
     *
     * @param int ID статьи
-    * @return Article|false Объект статьи или false, если запись не найдена или возникли проблемы
+    * @return Article|false Объект статьи или false, если запи  сь не найдена или возникли проблемы
     */
     public static function getById($id) {
         $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
@@ -126,6 +144,8 @@ class Article
 
         $row = $st->fetch();
         $conn = null;
+        
+        // trace($row, __FILE__, __LINE__);
         
         if ($row) { 
             return new Article($row);
@@ -141,38 +161,78 @@ class Article
     * @param string $order Столбец, по которому выполняется сортировка статей (по умолчанию = "publicationDate DESC")
     * @return Array|false Двух элементный массив: results => массив объектов Article; totalRows => общее количество строк
     */
-    public static function getList($numRows=1000000, 
-            $categoryId=null, $order="publicationDate DESC") 
+   public static function getList(
+            $numRows = 1000000, 
+            $categoryId = null, 
+            $order = "publicationDate DESC",
+            $active = null
+            ) 
     {
+
         $conn = new PDO(DB_DSN, DB_USERNAME, DB_PASSWORD);
-        $categoryClause = $categoryId ? "WHERE categoryId = :categoryId" : "";
+        
+        $Clause = [];
+
+        if ($categoryId) {
+          $Clause['category'] = "categoryId = :categoryId";
+        }
+        if ($active) {
+          $Clause['active'] = "active = :active";
+        }
+
+        $count = count($Clause);
+        $index = 0;
+        $where = '';
+
+        foreach ($Clause as $key => $value)
+        {
+          if ($index > 0) {
+            $where .= ' AND ';
+          }
+          $where .= $value;
+          $index++;
+        }
+        
+        if ($where != ''){
+           $where = ' WHERE '. $where;
+        }
+       
+
         $sql = "SELECT SQL_CALC_FOUND_ROWS *, UNIX_TIMESTAMP(publicationDate) 
                 AS publicationDate
-                FROM articles $categoryClause
+                FROM articles $where 
                 ORDER BY  $order  LIMIT :numRows";
         
+        
         $st = $conn->prepare($sql);
-//                        echo "<pre>";
-//                        print_r($st);
-//                        echo "</pre>";
-//                        Здесь $st - текст предполагаемого SQL-запроса, причём переменные не отображаются
+
+       // trace($st);
+
+        //Здесь $st - текст предполагаемого SQL-запроса, причём переменные не отображаются
         $st->bindValue(":numRows", $numRows, PDO::PARAM_INT);
         
-        if ($categoryId) 
+        if ($categoryId) {
             $st->bindValue( ":categoryId", $categoryId, PDO::PARAM_INT);
+        }
+
+        if ($active) {
+            $st->bindValue( ":active", $active, PDO::PARAM_INT);
+        }
         
+            
         $st->execute(); // выполняем запрос к базе данных
-//                        echo "<pre>";
-//                        print_r($st);
-//                        echo "</pre>";
-//                        Здесь $st - текст предполагаемого SQL-запроса, причём переменные не отображаются
+
+       // trace($st);
+
         $list = array();
 
         while ($row = $st->fetch()) {
             $article = new Article($row);
             $list[] = $article;
         }
-
+        
+       //trace($list);
+         
         // Получаем общее количество статей, которые соответствуют критерию
         $sql = "SELECT FOUND_ROWS() AS totalRows";
         $totalRows = $conn->query($sql)->fetch();
@@ -201,13 +261,14 @@ class Article
 
         // Вставляем статью
         $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-        $sql = "INSERT INTO articles ( publicationDate, categoryId, title, summary, content ) VALUES ( FROM_UNIXTIME(:publicationDate), :categoryId, :title, :summary, :content )";
+        $sql = "INSERT INTO articles ( publicationDate, categoryId, title, summary, content, active ) VALUES ( FROM_UNIXTIME(:publicationDate), :categoryId, :title, :summary, :content, :active )";
         $st = $conn->prepare ( $sql );
         $st->bindValue( ":publicationDate", $this->publicationDate, PDO::PARAM_INT );
         $st->bindValue( ":categoryId", $this->categoryId, PDO::PARAM_INT );
         $st->bindValue( ":title", $this->title, PDO::PARAM_STR );
         $st->bindValue( ":summary", $this->summary, PDO::PARAM_STR );
         $st->bindValue( ":content", $this->content, PDO::PARAM_STR );
+        $st->bindValue( ":active", $this->active, PDO::PARAM_INT );
         $st->execute();
         $this->id = $conn->lastInsertId();
         $conn = null;
@@ -227,7 +288,7 @@ class Article
       $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
       $sql = "UPDATE articles SET publicationDate=FROM_UNIXTIME(:publicationDate),"
               . " categoryId=:categoryId, title=:title, summary=:summary,"
-              . " content=:content WHERE id = :id";
+              . " content=:content, active=:active WHERE id = :id";
       
       $st = $conn->prepare ( $sql );
       $st->bindValue( ":publicationDate", $this->publicationDate, PDO::PARAM_INT );
@@ -235,6 +296,7 @@ class Article
       $st->bindValue( ":title", $this->title, PDO::PARAM_STR );
       $st->bindValue( ":summary", $this->summary, PDO::PARAM_STR );
       $st->bindValue( ":content", $this->content, PDO::PARAM_STR );
+      $st->bindValue( ":active", $this->active, PDO::PARAM_INT );// ТУТ ИЗМЕНЕНИЕ !
       $st->bindValue( ":id", $this->id, PDO::PARAM_INT );
       $st->execute();
       $conn = null;

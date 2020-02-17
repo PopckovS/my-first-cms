@@ -1,3 +1,5 @@
+
+<?php trace($results);?>
 <?php include "templates/include/header.php" ?>
 <?php include "templates/admin/include/header.php" ?>
 
@@ -14,13 +16,19 @@
         <ul>
 
           <li>
-            <label for="name">Category Name</label>
-            <input type="text" name="name" id="name" placeholder="Name of the category" required autofocus maxlength="255" value="<?php echo htmlspecialchars( $results['category']->name )?>" />
+            <label for="name">Sub Category Name</label>
+            <input type="text" name="name" id="name" placeholder="Name of the category" required autofocus maxlength="255" value="
+                <?php 
+                    echo htmlspecialchars( $results['subCategory']->name )
+                ?>" />
           </li>
 
           <li>
             <label for="description">Description</label>
-            <textarea name="description" id="description" placeholder="Brief description of the category" required maxlength="1000" style="height: 5em;"><?php echo htmlspecialchars( $results['category']->description )?></textarea>
+            <textarea name="description" id="description" placeholder="Brief description of the category" required maxlength="1000" style="height: 5em;">
+                <?php 
+                    echo htmlspecialchars( $results['subCategory']->categoryId )
+                ?></textarea>
           </li>
 
         </ul>

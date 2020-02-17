@@ -1,4 +1,5 @@
-  
+
+
 <?php include "templates/include/header.php" ?>
 	  
     <h1 style="width: 75%;">[!] Произошла ОШИБКА</h1>

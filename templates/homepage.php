@@ -26,7 +26,24 @@
                     </span>
                 <?php } ?>
             </h2>
-            <p class="summary"><?php echo htmlspecialchars($article->summary)?></p>
+           
+            <!-- ============================== Первое задание! ======================== -->
+           <!-- Вывод не summary а 50 первых символов content -->
+            <div style="width: 75%;">
+                <?php
+                //trace(  $article  );
+                echo substr($article->content, 0, 50) . '...';
+                ?>
+            </div>
+             
+           <!-- Старая версия -->
+            <!--
+            <p class="summary">
+                <?php// echo htmlspecialchars($article->summary)?>
+            </p> 
+            -->
+            <!-- =============================== Конец ================================= -->
+       
             <img id="loader-identity" src="JS/ajax-loader.gif" alt="gif">
             
             <ul class="ajax-load">
